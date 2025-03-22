@@ -1,9 +1,18 @@
 QT += quick
 QT += widgets
 QT += core
+QT += quickcontrols2  # 添加 QuickControls2 支持
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+# FluentUI 配置
+unix {
+    LIBS += -L/usr/local/lib -lFluentUI
+    INCLUDEPATH += /usr/local/include/FluentUI
+    # 添加运行时库搜索路径
+    QMAKE_RPATHDIR += /usr/local/lib
+}
 
 SOURCES += \
     main.cpp \
@@ -19,7 +28,10 @@ SOURCES += \
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH +="../build-chat_client-Desktop_Qt_5_15_2_GCC_64bit-Debug/"
+QML2_IMPORT_PATH += /usr/local/imports
+QML_IMPORT_PATH += $$PWD
+QML_IMPORT_PATH += /usr/local/imports
+
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 

@@ -1,28 +1,34 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(chat_server LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
-#set build path
+
+# 设置构建路径
 set(build_path ${PROJECT_SOURCE_DIR}/build/)
-#set lib output path
 set(LIBRARY_OUTPUT_DIRECTORY ${build_path}/lib/)
-#set cache path
 set(CMAKE_CACHEFILE_DIR ${build_path}/build_cache/)
-#set include path
 set(include_path ${PROJECT_SOURCE_DIR}/include/)
 #import existed libs
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
-#===================configure==================
+# MySQL 配置
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+find_library(MYSQL_LIBRARY NAMES mariadb mariadbclient mysqlclient)
+if(NOT MYSQL_LIBRARY)
+    message(FATAL_ERROR "MariaDB/MySQL client library not found")
+endif()
+
+# 服务器配置
 set(SERVER_PORT 8888)
 set(SQL_HOST "127.0.0.1")
-set(SQL_USER "root")
+set(SQL_USER "chatuser")
 set(SQL_DATABASE "chat") 
 set(SQL_PORT 3306)
-set(SQL_PASS_PATH "/home/tenerome/Documents/chat/src/server/build/pass.dat")
-configure_file(${include_path}/db/server.h.in ${include_path}/db/server.h)
-#==============================================
+set(SQL_PASS_PATH "${PROJECT_SOURCE_DIR}/build/pass.dat")
 
-#set includes
+# 配置头文件
+configure_file(${include_path}/db/server.h.in ${include_path}/db/server.h)
+
+# 包含目录
 include_directories(
     ${PROJECT_SOURCE_DIR}/include/db/
     ${PROJECT_SOURCE_DIR}/include/encode/
@@ -32,10 +38,15 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/threadpool/
 )
 
-#build start
-message("build chat_server: \n")
+# 构建设置
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose build type" FORCE)
+endif()
 
-#libTcpServer.so
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -ggdb")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
+
+# 构建共享库
 add_library(TcpServer SHARED 
     ./Source/encode/base64.cpp
     ./Source/encode/md5.cpp
@@ -57,7 +68,14 @@ SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 #==========================================
-#set executable object
+# 构建可执行文件
 add_executable(server_main server_main.cpp)
-#link libs
-target_link_libraries(server_main PUBLIC TcpServer -lmysqlclient)
+
+# 链接库
+target_link_libraries(server_main 
+    PRIVATE 
+    TcpServer 
+    ${MYSQL_LIBRARY}
+)
+
+message("Build chat_server: ${CMAKE_BUILD_TYPE}\n")

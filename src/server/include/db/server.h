@@ -3,10 +3,10 @@
 //cmake configure file
 #define SERVER_PORT 8888
 #define SQL_HOST "127.0.0.1"
-#define SQL_USER "root"
+#define SQL_USER "chatuser"
 #define SQL_DATABASE "chat"
 #define SQL_PORT 3306
-#define SQL_PASS_PATH "/home/tenerome/Documents/chat/src/server/build/pass.dat"
+#define SQL_PASS_PATH "/home/hollow/vscpp/Tchat/src/server/build/pass.dat"
 //system
 #include<iostream>
 #include<fstream>
